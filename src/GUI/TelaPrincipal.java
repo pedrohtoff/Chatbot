@@ -5,6 +5,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
@@ -14,7 +15,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class TelaPrincipal extends Application {
@@ -31,9 +31,28 @@ public class TelaPrincipal extends Application {
         // Scroll para visualizar as mensagens
         ScrollPane scroll = new ScrollPane(mensagens);
         scroll.setFitToWidth(true);
-        mensagens.getChildren().add(new Text("Voce: Olá!"));
-        mensagens.getChildren().add(new Text("Bot: Olá! Como posso ajudá-lo hoje?"));
+        HBox caixaConversaBot = new HBox();
+        Label mensagemBot = new Label("Bot: Olá! Como posso ajudá-lo hoje?");
+        mensagemBot.setWrapText(true);
+        mensagemBot.setStyle(
+                "-fx-background-color: #E8E8E8;" +
+                        "-fx-background-radius: 15;" +
+                        "-fx-padding: 10;");
 
+        caixaConversaBot.getChildren().add(mensagemBot);
+        caixaConversaBot.setAlignment(Pos.CENTER_LEFT);
+
+        HBox caixaConversaUsuario = new HBox();
+        Label mensagemUsuario = new Label("Você: Olá! Gostaria de saber mais sobre os serviços.");
+        mensagemUsuario.setWrapText(true);
+        mensagemUsuario.setStyle(
+                "-fx-background-color: #DCF2FF;" +
+                        "-fx-background-radius: 15;" +
+                        "-fx-padding: 10;");
+        caixaConversaUsuario.getChildren().add(mensagemUsuario);
+        caixaConversaUsuario.setAlignment(Pos.CENTER_RIGHT);
+
+        mensagens.getChildren().addAll(caixaConversaBot, caixaConversaUsuario);
         // Campo para digitar
         TextField campoMensagem = new TextField();
         campoMensagem.setPromptText("Digite sua mensagem...");
@@ -48,8 +67,8 @@ public class TelaPrincipal extends Application {
 
         // Barra superior
         HBox superior = new HBox(10);
-        Text titulo = new Text("Banca$h");
-        Text status = new Text("Online");
+        Label titulo = new Label("Banca$h");
+        Label status = new Label("Online");
         Circle indicadorStatus = new Circle(5, Color.GREEN);
 
         Region espaco = new Region();
