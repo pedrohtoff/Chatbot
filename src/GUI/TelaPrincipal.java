@@ -1,5 +1,6 @@
 package GUI;
 
+import domain.ChatBot;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -21,6 +22,8 @@ public class TelaPrincipal extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+        ChatBot chatbot = new ChatBot();
+
         // Layout Principal
         BorderPane root = new BorderPane();
 
@@ -39,18 +42,6 @@ public class TelaPrincipal extends Application {
         // Garantir que a barra de rolagem vertical apareça apenas quando necessário
         scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
-        HBox caixaConversaBot = new HBox();
-        Label mensagemBot = new Label("Bot: Olá! Como posso ajudá-lo hoje?");
-        mensagemBot.setWrapText(true);
-        mensagemBot.setStyle(
-                "-fx-background-color: #E8E8E8;" +
-                        "-fx-background-radius: 15;" +
-                        "-fx-padding: 10;");
-
-        caixaConversaBot.getChildren().add(mensagemBot);
-        caixaConversaBot.setAlignment(Pos.CENTER_LEFT);
-
-        mensagens.getChildren().addAll(caixaConversaBot);
         // Campo para digitar
         TextField campoMensagem = new TextField();
         campoMensagem.setPromptText("Digite sua mensagem...");
@@ -58,24 +49,35 @@ public class TelaPrincipal extends Application {
         // Botão de enviar
         Button enviar = new Button("Enviar");
         enviar.setOnAction(e -> {
-            String texto = campoMensagem.getText();
+            String textoSemNormalizacao = campoMensagem.getText();
+
+            String textoComNormalizacao = textoSemNormalizacao.trim().toLowerCase();
 
             HBox caixaConversaUsuario = new HBox();
 
-            Label mensagemUsuario = new Label(texto);
+            Label mensagemUsuario = new Label(textoSemNormalizacao);
 
             mensagemUsuario.setWrapText(true);
-            mensagemUsuario.setStyle(
-                    "-fx-background-color: #DCF2FF;" +
-                            "-fx-background-radius: 15;" +
-                            "-fx-padding: 10;");
+            mensagemUsuario
+                    .setStyle("-fx-background-color: #DCF2FF;" + "-fx-background-radius: 15;" + "-fx-padding: 10;");
 
             caixaConversaUsuario.getChildren().add(mensagemUsuario);
             caixaConversaUsuario.setAlignment(Pos.CENTER_RIGHT);
 
             mensagens.getChildren().addAll(caixaConversaUsuario);
-
             campoMensagem.clear();
+
+            String respostaBot = chatbot.responder(textoComNormalizacao);
+
+            HBox caixaConversaBot = new HBox();
+            Label mensagemBot = new Label(respostaBot);
+            mensagemBot.setWrapText(true);
+            mensagemBot.setStyle("-fx-background-color: #E8E8E8;" + "-fx-background-radius: 15;" + "-fx-padding: 10;");
+
+            caixaConversaBot.getChildren().add(mensagemBot);
+            caixaConversaBot.setAlignment(Pos.CENTER_LEFT);
+            mensagens.getChildren().addAll(caixaConversaBot);
+
         });
 
         // Barra inferior
