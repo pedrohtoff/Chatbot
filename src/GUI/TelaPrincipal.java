@@ -31,6 +31,14 @@ public class TelaPrincipal extends Application {
         // Scroll para visualizar as mensagens
         ScrollPane scroll = new ScrollPane(mensagens);
         scroll.setFitToWidth(true);
+
+        mensagens.heightProperty().addListener((obs, alturaAntiga, alturaNova) -> {
+            scroll.setVvalue(1.0); // Rola para o final quando uma nova mensagem é adicionada
+        });
+
+        // Garantir que a barra de rolagem vertical apareça apenas quando necessário
+        scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
         HBox caixaConversaBot = new HBox();
         Label mensagemBot = new Label("Bot: Olá! Como posso ajudá-lo hoje?");
         mensagemBot.setWrapText(true);
@@ -53,13 +61,16 @@ public class TelaPrincipal extends Application {
         caixaConversaUsuario.setAlignment(Pos.CENTER_RIGHT);
 
         mensagens.getChildren().addAll(caixaConversaBot, caixaConversaUsuario);
+
         // Campo para digitar
         TextField campoMensagem = new TextField();
         campoMensagem.setPromptText("Digite sua mensagem...");
 
         // Botão de enviar
         Button enviar = new Button("Enviar");
-
+        enviar.setOnAction(e -> {
+            System.out.println("botao funfando ");
+        });
         // Barra inferior
         HBox entrada = new HBox(10);
         entrada.setPadding(new Insets(10));
