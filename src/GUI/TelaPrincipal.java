@@ -50,18 +50,7 @@ public class TelaPrincipal extends Application {
         caixaConversaBot.getChildren().add(mensagemBot);
         caixaConversaBot.setAlignment(Pos.CENTER_LEFT);
 
-        HBox caixaConversaUsuario = new HBox();
-        Label mensagemUsuario = new Label("Você: Olá! Gostaria de saber mais sobre os serviços.");
-        mensagemUsuario.setWrapText(true);
-        mensagemUsuario.setStyle(
-                "-fx-background-color: #DCF2FF;" +
-                        "-fx-background-radius: 15;" +
-                        "-fx-padding: 10;");
-        caixaConversaUsuario.getChildren().add(mensagemUsuario);
-        caixaConversaUsuario.setAlignment(Pos.CENTER_RIGHT);
-
-        mensagens.getChildren().addAll(caixaConversaBot, caixaConversaUsuario);
-
+        mensagens.getChildren().addAll(caixaConversaBot);
         // Campo para digitar
         TextField campoMensagem = new TextField();
         campoMensagem.setPromptText("Digite sua mensagem...");
@@ -69,8 +58,26 @@ public class TelaPrincipal extends Application {
         // Botão de enviar
         Button enviar = new Button("Enviar");
         enviar.setOnAction(e -> {
-            System.out.println("botao funfando ");
+            String texto = campoMensagem.getText();
+
+            HBox caixaConversaUsuario = new HBox();
+
+            Label mensagemUsuario = new Label(texto);
+
+            mensagemUsuario.setWrapText(true);
+            mensagemUsuario.setStyle(
+                    "-fx-background-color: #DCF2FF;" +
+                            "-fx-background-radius: 15;" +
+                            "-fx-padding: 10;");
+
+            caixaConversaUsuario.getChildren().add(mensagemUsuario);
+            caixaConversaUsuario.setAlignment(Pos.CENTER_RIGHT);
+
+            mensagens.getChildren().addAll(caixaConversaUsuario);
+
+            campoMensagem.clear();
         });
+
         // Barra inferior
         HBox entrada = new HBox(10);
         entrada.setPadding(new Insets(10));
