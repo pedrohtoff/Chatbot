@@ -3,6 +3,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "App",
+            "request": "launch",
+            "mainClass": "App",
+            "projectName": "Chatbot_8b98557d"
+        },
+        {
+            "type": "java",
             "name": "Executar JavaFX",
             "request": "launch",
             "mainClass": "GUI.TelaPrincipal",
