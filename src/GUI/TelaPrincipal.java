@@ -47,19 +47,19 @@ public class TelaPrincipal extends Application {
         // Campo para digitar
         TextField campoMensagem = new TextField();
         campoMensagem.setPromptText("Digite sua mensagem...");
-
+        campoMensagem.setId("campo-mensagem");
         // Botão de enviar
-        Button enviar = new Button("Enviar");
+        Button enviar = new Button("➜");
+        enviar.setId("botao-enviar");
         enviar.setOnAction(e -> {
             String textoSemNormalizacao = campoMensagem.getText();
 
             String textoComNormalizacao = textoSemNormalizacao.trim().toLowerCase();
 
             HBox caixaConversaUsuario = new HBox();
-
             Label mensagemUsuario = new Label(textoSemNormalizacao);
-
             mensagemUsuario.setWrapText(true);
+            mensagemUsuario.setMaxWidth(450);
             mensagemUsuario.getStyleClass().add("mensagem-usuario");
 
             caixaConversaUsuario.getChildren().add(mensagemUsuario);
@@ -78,6 +78,9 @@ public class TelaPrincipal extends Application {
 
                 mensagens.getChildren().remove(caixaDigitando);
 
+                Label nomeBot = new Label("Banca$h");
+                nomeBot.getStyleClass().add("nome-bot");
+
                 String respostaBot = chatbot.responder(textoComNormalizacao);
                 if (chatbot.isEncerrado()) {
                     pausaFechar.setOnFinished(events -> stage.close());
@@ -88,7 +91,10 @@ public class TelaPrincipal extends Application {
                 mensagemBot.setWrapText(true);
                 mensagemBot.getStyleClass().add("mensagem-bot");
 
-                caixaConversaBot.getChildren().add(mensagemBot);
+                VBox conteudoBot = new VBox(3);
+                conteudoBot.getChildren().addAll(nomeBot, mensagemBot);
+
+                caixaConversaBot.getChildren().add(conteudoBot);
                 caixaConversaBot.setAlignment(Pos.CENTER_LEFT);
                 mensagens.getChildren().addAll(caixaConversaBot);
             });
@@ -100,6 +106,7 @@ public class TelaPrincipal extends Application {
         entrada.setPadding(new Insets(10));
         entrada.getChildren().addAll(campoMensagem, enviar);
         entrada.setId("area-entrada");
+
         // Barra superior
         HBox superior = new HBox(10);
         Label titulo = new Label("Banca$h");
