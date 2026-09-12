@@ -6,7 +6,11 @@ public class EstadoConversa {
 
     enum AcaoPendente {
         SALDO,
-        FATURA
+        FATURA,
+        LIMITE,
+        PIX,
+        CARTAO,
+        EMPRESTIMO,
     }
 
     enum Estado {
@@ -95,9 +99,11 @@ public class EstadoConversa {
         return false;
     }
 
-    public void iniciarAcao(AcaoPendente acaoAtual) {
+    public String iniciarAcao(AcaoPendente acaoAtual) {
         this.acao = acaoAtual;
         this.estado = Estado.AGUARDANDO_CPF;
+
+        return "Bot: Para continuar, por favor informe os 3 primeiros dígitos do seu CPF.";
     }
 
     public boolean validarCPF(String cpf) {
