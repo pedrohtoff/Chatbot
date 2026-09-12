@@ -19,17 +19,22 @@ public class EstadoConversa {
     public String tratarEstados(String mensagem, Conta fkConta) {
         switch (estado) {
             case NORMAL:
+                estado = Estado.NORMAL;
                 return "Bot: Desculpe, não entendi. Pode reformular a pergunta?";
             case AGUARDANDO_CPF:
                 if (validarCPF(mensagem)) {
                     switch (acao) {
                         case SALDO:
-                            return String.format("Bot: Pronto! O seu saldo é de R$ %.2f", fkConta.getSaldo());
+                            estado = Estado.NORMAL;
+                            return String.format(
+                                    "Bot: Pronto! O seu saldo é de R$ %.2f, Deseja fazer mais algumas coisa?",
+                                    fkConta.getSaldo());
                         case FATURA:
                             estado = Estado.AGUARDANDO_ACAO_FATURA;
-                            return String.format("Bot: Pronto! Sua fatura é de R$ %.2f",
+                            return String.format("Bot: Pronto! Sua fatura é de R$ %.2f, Deseja pagar ou sair?",
                                     fkConta.getCartao().getFatura());
                         default:
+                            estado = Estado.NORMAL;
                             return "Não entendi o quando você disse. Pode reformular a pergunta?";
                     }
                 } else {
@@ -45,6 +50,7 @@ public class EstadoConversa {
                 estado = Estado.NORMAL;
                 return "Bot: Tudo bem, operação cancelada.";
             default:
+                estado = Estado.NORMAL;
                 return "Bot: Desculpe, ocorreu um erro inesperado.";
         }
     }
@@ -56,8 +62,8 @@ public class EstadoConversa {
         return false;
     }
 
-    public void iniciarAcao(AcaoPendente acao) {
-        this.acao = acao;
+    public void iniciarAcao(AcaoPendente acaoAtual) {
+        this.acao = acaoAtual;
         this.estado = Estado.AGUARDANDO_CPF;
     }
 
