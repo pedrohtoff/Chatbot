@@ -3,6 +3,7 @@ package domain;
 public class EstadoConversa {
     private Estado estado = EstadoConversa.Estado.NORMAL;
     private AcaoPendente acao;
+    private OperacaoPIX operacaoPIX;
 
     enum AcaoPendente {
         SALDO,
@@ -17,7 +18,14 @@ public class EstadoConversa {
         NORMAL,
         AGUARDANDO_CPF,
         AGUARDANDO_ACAO_FATURA,
+        AGUARDANDO_ACAO_PIX,
+        AGUARDANDO_ACAO_EMPRESTIMO,
         AGUARDANDO_VALOR
+    }
+
+    enum OperacaoPIX {
+        ENVIAR,
+        RECEBER
     }
 
     public String tratarEstados(String mensagem, Conta fkConta) {
@@ -43,9 +51,14 @@ public class EstadoConversa {
                                     .format("Bot: Pronto! O seu limite é de R$ %.2f, Deseja fazer mais alguma coisa?",
                                             fkConta.getCartao().getLimite());
                         case PIX:
+                            estado = Estado.AGUARDANDO_ACAO_PIX;
+                            return "Bot: Você deseja receber ou enviar um pix ?";
                         case CARTAO:
                         case EMPRESTIMO:
-
+                            estado = Estado.AGUARDANDO_ACAO_EMPRESTIMO;
+                            return String
+                                    .format("Bot: Pronto! O valor do seu empréstimo é de R$ %.2f, Deseja resgata-lo agora?",
+                                            fkConta.getEmprestimo());
                         default:
                             estado = Estado.NORMAL;
                             return "Não entendi o quando você disse. Pode reformular a pergunta?";
@@ -55,43 +68,108 @@ public class EstadoConversa {
                 }
             case AGUARDANDO_VALOR:
                 double valor, aux;
-                try {
-                    valor = Double.parseDouble(mensagem);
-                    if (valor <= 0) {
-                        return "Bot: Informe um valor maior que zero.";
-                    }
+                switch (acao) {
+                    case FATURA:
+                        try {
+                            valor = Double.parseDouble(mensagem);
+                            if (valor <= 0) {
+                                return "Bot: Informe um valor maior que zero.";
+                            }
 
-                    if (valor <= fkConta.getSaldo()) {
-                        fkConta.setSaldo(fkConta.getSaldo() - valor);
+                            if (valor <= fkConta.getSaldo()) {
+                                fkConta.setSaldo(fkConta.getSaldo() - valor);
 
-                        if (valor < fkConta.getCartao().getFatura()) {
-                            fkConta.getCartao().setFatura(fkConta.getCartao().getFatura() - valor);
-                            estado = Estado.NORMAL;
-                            return "Bot: Sua fatura foi paga com sucesso! Novo saldo: R$" + fkConta.getSaldo()
-                                    + " e fatura restante: R$" + fkConta.getCartao().getFatura();
-                        } else if (valor == fkConta.getCartao().getFatura()) {
-                            fkConta.getCartao().setFatura(0);
-                            estado = Estado.NORMAL;
-                            return "Bot: Sua fatura foi paga com sucesso! Novo saldo: R$" + fkConta.getSaldo();
-                        } else {
-                            aux = Math.abs(fkConta.getCartao().getFatura() - valor);
-                            fkConta.getCartao().setFatura(0);
-                            fkConta.setSaldo(fkConta.getSaldo() + aux);
-                            estado = Estado.NORMAL;
-                            return "Bot: O valor inserido é maior que a fatura. Pagando o valor da fatura e devolvendo o restante.";
+                                if (valor < fkConta.getCartao().getFatura()) {
+                                    fkConta.getCartao().setFatura(fkConta.getCartao().getFatura() - valor);
+                                    estado = Estado.NORMAL;
+                                    return "Bot: Sua fatura foi paga com sucesso! Novo saldo: R$" + fkConta.getSaldo()
+                                            + " e fatura restante: R$" + fkConta.getCartao().getFatura();
+                                } else if (valor == fkConta.getCartao().getFatura()) {
+                                    fkConta.getCartao().setFatura(0);
+                                    estado = Estado.NORMAL;
+                                    return "Bot: Sua fatura foi paga com sucesso! Novo saldo: R$" + fkConta.getSaldo();
+                                } else {
+                                    aux = Math.abs(fkConta.getCartao().getFatura() - valor);
+                                    fkConta.getCartao().setFatura(0);
+                                    fkConta.setSaldo(fkConta.getSaldo() + aux);
+                                    estado = Estado.NORMAL;
+                                    return "Bot: O valor inserido é maior que a fatura. Pagando o valor da fatura e devolvendo o restante.";
+                                }
+                            } else {
+                                estado = Estado.AGUARDANDO_VALOR;
+                                return "Bot: Saldo insuficiente para realizar o pagamento! Saia ou tente novamente.";
+                            }
+                        } catch (NumberFormatException e) {
+                            estado = Estado.AGUARDANDO_VALOR;
+                            return "Bot: Por favor, informe um valor válido.";
                         }
-                    } else {
-                        estado = Estado.AGUARDANDO_VALOR;
-                        return "Bot: Saldo insuficiente para realizar o pagamento! Saia ou tente novamente.";
-                    }
-                } catch (NumberFormatException e) {
-                    estado = Estado.AGUARDANDO_VALOR;
-                    return "Bot: Por favor, informe um valor válido.";
+                    case PIX:
+                        if (operacaoPIX == OperacaoPIX.ENVIAR) {
+                            try {
+                                valor = Double.parseDouble(mensagem);
+                                if (valor <= fkConta.getSaldo()) {
+                                    fkConta.setSaldo(fkConta.getSaldo() - valor);
+                                    estado = Estado.NORMAL;
+                                    return "Bot: Pix enviado com sucesso! Novo saldo: R$" + fkConta.getSaldo();
+                                } else {
+                                    estado = Estado.AGUARDANDO_VALOR;
+                                    return "Bot: Saldo insuficiente para enviar o pix! Saia ou tente novamente.";
+                                }
+                            } catch (NumberFormatException e) {
+                                estado = Estado.AGUARDANDO_VALOR;
+                                return "Bot: Por favor, informe um valor válido.";
+                            }
+                        } else if (operacaoPIX == OperacaoPIX.RECEBER) {
+                            try {
+                                valor = Double.parseDouble(mensagem);
+                                fkConta.setSaldo(fkConta.getSaldo() + valor);
+                                estado = Estado.NORMAL;
+                                return "Bot: Pix recebido com sucesso! Novo saldo: R$" + fkConta.getSaldo();
+                            } catch (NumberFormatException e) {
+                                estado = Estado.AGUARDANDO_VALOR;
+                                return "Bot: Por favor, informe um valor válido.";
+                            }
+                        }
+
+                    case CARTAO:
+                    case EMPRESTIMO:
+                        try {
+                            valor = Double.parseDouble(mensagem);
+                            fkConta.setSaldo(fkConta.getSaldo() + valor);
+                            fkConta.setEmprestimo(0);
+                            estado = Estado.NORMAL;
+                            return "Bot: Emprestimo resgatado com sucesso! Novo saldo: R$"
+                                    + fkConta.getSaldo();
+                        } catch (NumberFormatException e) {
+                            estado = Estado.AGUARDANDO_VALOR;
+                            return "Bot: Por favor, informe um valor válido.";
+                        }
+                    default:
+                        break;
                 }
             case AGUARDANDO_ACAO_FATURA:
                 if (mensagem.contains("pagar")) {
                     estado = Estado.AGUARDANDO_VALOR;
                     return "Informe o valor que deseja pagar.";
+                }
+                estado = Estado.NORMAL;
+                return "Bot: Tudo bem, operação cancelada.";
+            case AGUARDANDO_ACAO_EMPRESTIMO:
+                if (mensagem.contains("sim")) {
+                    estado = Estado.AGUARDANDO_VALOR;
+                    return "Bot: Qual o valor que deseja resgatar? ";
+                }
+                estado = Estado.NORMAL;
+                return "Bot: Tudo bem, operação cancelada.";
+            case AGUARDANDO_ACAO_PIX:
+                if (mensagem.contains("receber")) {
+                    estado = Estado.AGUARDANDO_VALOR;
+                    operacaoPIX = OperacaoPIX.RECEBER;
+                    return "Bot: Informe o valor que vais receber.";
+                } else if (mensagem.contains("enviar")) {
+                    estado = Estado.AGUARDANDO_VALOR;
+                    operacaoPIX = OperacaoPIX.ENVIAR;
+                    return "Bot: Informe o valor que vais enviar.";
                 }
                 estado = Estado.NORMAL;
                 return "Bot: Tudo bem, operação cancelada.";
