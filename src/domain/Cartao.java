@@ -38,11 +38,6 @@ public class Cartao {
     }
 
     public void setFatura(double fatura) {
-        if (fatura >= 0 && fatura <= limite) {
-            this.fatura = fatura;
-        } else {
-            System.out.println("Limite excedido! A fatura não pode ser maior que o limite do cartão.");
-        }
         this.fatura = fatura;
     }
 
