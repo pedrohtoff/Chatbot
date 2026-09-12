@@ -5,6 +5,7 @@ import domain.EstadoConversa.AcaoPendente;
 public class ChatBot {
     Conta fkConta = new Conta();
     EstadoConversa estadoConversa = new EstadoConversa();
+    private boolean encerrado = false;
 
     public String responder(String mensagem) {
         if (estadoConversa.estadoPendente()) {
@@ -30,7 +31,14 @@ public class ChatBot {
         } else if (intencoes.isAtendente()) {
             // Arrumar para colocar um tempinho como se tivesse procurando
             return "Bot: Claro! Encaminhando para um atendente humano. Por favor, aguarde...";
+        } else if (intencoes.isEncerrar()) {
+            encerrado = true;
+            return "Bot: Até mais! Espero ter te ajudado. Obrigado por utilizar o Bancas$!";
         }
         return "Bot: Desculpe, não entendi. Pode reformular a pergunta?";
+    }
+
+    public boolean isEncerrado() {
+        return encerrado;
     }
 }

@@ -1,6 +1,7 @@
 package GUI;
 
 import domain.ChatBot;
+import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -17,13 +18,15 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class TelaPrincipal extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
         ChatBot chatbot = new ChatBot();
-
+        PauseTransition pausaFechar = new PauseTransition(Duration.seconds(2));
+        PauseTransition pausaMensagens = new PauseTransition(Duration.seconds(1));
         // Layout Principal
         BorderPane root = new BorderPane();
 
@@ -67,17 +70,32 @@ public class TelaPrincipal extends Application {
             mensagens.getChildren().addAll(caixaConversaUsuario);
             campoMensagem.clear();
 
-            String respostaBot = chatbot.responder(textoComNormalizacao);
+            Label digitando = new Label("Banca$h está digitando...");
+            HBox caixaDigitando = new HBox(digitando);
+            caixaDigitando.setAlignment(Pos.CENTER_LEFT);
 
-            HBox caixaConversaBot = new HBox();
-            Label mensagemBot = new Label(respostaBot);
-            mensagemBot.setWrapText(true);
-            mensagemBot.setStyle("-fx-background-color: #E8E8E8;" + "-fx-background-radius: 15;" + "-fx-padding: 10;");
+            mensagens.getChildren().add(caixaDigitando);
 
-            caixaConversaBot.getChildren().add(mensagemBot);
-            caixaConversaBot.setAlignment(Pos.CENTER_LEFT);
-            mensagens.getChildren().addAll(caixaConversaBot);
+            pausaMensagens.setOnFinished(event -> {
 
+                mensagens.getChildren().remove(caixaDigitando);
+
+                String respostaBot = chatbot.responder(textoComNormalizacao);
+                if (chatbot.isEncerrado()) {
+                    pausaFechar.setOnFinished(events -> stage.close());
+                    pausaFechar.play();
+                }
+                HBox caixaConversaBot = new HBox();
+                Label mensagemBot = new Label(respostaBot);
+                mensagemBot.setWrapText(true);
+                mensagemBot
+                        .setStyle("-fx-background-color: #E8E8E8;" + "-fx-background-radius: 15;" + "-fx-padding: 10;");
+
+                caixaConversaBot.getChildren().add(mensagemBot);
+                caixaConversaBot.setAlignment(Pos.CENTER_LEFT);
+                mensagens.getChildren().addAll(caixaConversaBot);
+            });
+            pausaMensagens.play();
         });
 
         // Barra inferior

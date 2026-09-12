@@ -12,6 +12,7 @@ public class Intencoes {
     private boolean atendente;
     private boolean pagamento;
     private boolean cartao;
+    private boolean encerrar;
 
     public Intencoes(String mensagem) {
         this.saudacao = mensagem.contains("oi") || mensagem.contains("olá");
@@ -25,6 +26,11 @@ public class Intencoes {
         this.atendente = mensagem.contains("atendente") || mensagem.contains("pessoa");
         this.pagamento = mensagem.contains("pagar") || mensagem.contains("pagamento");
         this.cartao = mensagem.contains("cartão") || mensagem.contains("cartao");
+        this.encerrar = mensagem.contains("tchau");
+    }
+
+    public boolean isEncerrar() {
+        return encerrar;
     }
 
     public boolean isCartao() {
