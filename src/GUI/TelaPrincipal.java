@@ -29,11 +29,11 @@ public class TelaPrincipal extends Application {
         PauseTransition pausaMensagens = new PauseTransition(Duration.seconds(1));
         // Layout Principal
         BorderPane root = new BorderPane();
-
+        root.setId("root");
         // Área das mensagens
         VBox mensagens = new VBox();
         mensagens.setPadding(new Insets(10));
-
+        mensagens.setId("area-chat");
         // Scroll para visualizar as mensagens
         ScrollPane scroll = new ScrollPane(mensagens);
         scroll.setFitToWidth(true);
@@ -61,8 +61,7 @@ public class TelaPrincipal extends Application {
             Label mensagemUsuario = new Label(textoSemNormalizacao);
 
             mensagemUsuario.setWrapText(true);
-            mensagemUsuario
-                    .setStyle("-fx-background-color: #DCF2FF;" + "-fx-background-radius: 15;" + "-fx-padding: 10;");
+            mensagemUsuario.getStyleClass().add("mensagem-usuario");
 
             caixaConversaUsuario.getChildren().add(mensagemUsuario);
             caixaConversaUsuario.setAlignment(Pos.CENTER_RIGHT);
@@ -88,8 +87,7 @@ public class TelaPrincipal extends Application {
                 HBox caixaConversaBot = new HBox();
                 Label mensagemBot = new Label(respostaBot);
                 mensagemBot.setWrapText(true);
-                mensagemBot
-                        .setStyle("-fx-background-color: #E8E8E8;" + "-fx-background-radius: 15;" + "-fx-padding: 10;");
+                mensagemBot.getStyleClass().add("mensagem-bot");
 
                 caixaConversaBot.getChildren().add(mensagemBot);
                 caixaConversaBot.setAlignment(Pos.CENTER_LEFT);
@@ -107,10 +105,14 @@ public class TelaPrincipal extends Application {
         HBox superior = new HBox(10);
         Label titulo = new Label("Banca$h");
         Label status = new Label("Online");
-        Circle indicadorStatus = new Circle(5, Color.GREEN);
+        Circle indicadorStatus = new Circle(5);
 
         Region espaco = new Region();
         HBox.setHgrow(espaco, Priority.ALWAYS);
+        superior.setId("cabecalho");
+        titulo.setId("titulo");
+        status.setId("status");
+        indicadorStatus.setId("indicadorStatus");
 
         superior.getChildren().addAll(titulo, espaco, indicadorStatus, status);
         superior.setAlignment(Pos.CENTER);
@@ -124,6 +126,7 @@ public class TelaPrincipal extends Application {
 
         // Criando a cena
         Scene scene = new Scene(root, 500, 600);
+        scene.getStylesheets().add(getClass().getResource("/CSS/style.css").toExternalForm());
 
         stage.setTitle("App");
         stage.setScene(scene);

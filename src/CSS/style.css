@@ -1,0 +1,40 @@
+#root{
+    -fx-background-color: #F5F7FA;
+}
+
+#cabecalho{
+    -fx-background-color: #4267B2;
+    -fx-padding: 15px;
+    -fx-alignment: CENTER_LEFT;
+}
+#titulo{
+    -fx-text-fill: white;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+#status{
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+}
+
+#indicadorStatus{
+    -fx-fill: #42B72A;
+}
+
+#area-chat{
+    -fx-background-color: #F5F6F7;
+    -fx-padding: 15px;
+}
+
+.mensagem-usuario{
+    -fx-background-color: #DCF2FF;  
+    -fx-background-radius: 15;  
+    -fx-padding: 10;
+}
+
+.mensagem-bot{
+    -fx-background-color: #E8E8E8;
+    -fx-background-radius: 15; 
+    -fx-padding: 10;
+
+}
