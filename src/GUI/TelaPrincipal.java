@@ -15,7 +15,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -37,7 +36,7 @@ public class TelaPrincipal extends Application {
         // Scroll para visualizar as mensagens
         ScrollPane scroll = new ScrollPane(mensagens);
         scroll.setFitToWidth(true);
-
+        scroll.setId("scroll-chat");
         mensagens.heightProperty().addListener((obs, alturaAntiga, alturaNova) -> {
             scroll.setVvalue(1.0); // Rola para o final quando uma nova mensagem é adicionada
         });
@@ -100,7 +99,7 @@ public class TelaPrincipal extends Application {
         HBox entrada = new HBox(10);
         entrada.setPadding(new Insets(10));
         entrada.getChildren().addAll(campoMensagem, enviar);
-
+        entrada.setId("area-entrada");
         // Barra superior
         HBox superior = new HBox(10);
         Label titulo = new Label("Banca$h");

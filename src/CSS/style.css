@@ -25,16 +25,19 @@
     -fx-background-color: #F5F6F7;
     -fx-padding: 15px;
 }
-
+#scroll-chat{
+     -fx-background-color: #F5F6F7;
+     -fx-border-color: transparent;
+}
 .mensagem-usuario{
-    -fx-background-color: #DCF2FF;  
-    -fx-background-radius: 15;  
-    -fx-padding: 10;
+    -fx-background-color: #E7F3FF;  
+    -fx-background-radius: 15px;  
+    -fx-padding: 10px;
 }
 
 .mensagem-bot{
-    -fx-background-color: #E8E8E8;
-    -fx-background-radius: 15; 
-    -fx-padding: 10;
+    -fx-background-color: white;
+    -fx-background-radius: 15px; 
+    -fx-padding: 10px;
 
 }
