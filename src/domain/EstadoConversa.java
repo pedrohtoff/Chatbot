@@ -4,6 +4,7 @@ public class EstadoConversa {
     private Estado estado = EstadoConversa.Estado.NORMAL;
     private AcaoPendente acao;
     private OperacaoPIX operacaoPIX;
+    private OperacaoCARTAO operacaoCARTAO;
 
     enum AcaoPendente {
         SALDO,
@@ -20,12 +21,18 @@ public class EstadoConversa {
         AGUARDANDO_ACAO_FATURA,
         AGUARDANDO_ACAO_PIX,
         AGUARDANDO_ACAO_EMPRESTIMO,
+        AGUARDANDO_ACAO_CARTAO,
         AGUARDANDO_VALOR
     }
 
     enum OperacaoPIX {
         ENVIAR,
         RECEBER
+    }
+
+    enum OperacaoCARTAO {
+        CREDITO,
+        DEBITO
     }
 
     public String tratarEstados(String mensagem, Conta fkConta) {
@@ -54,6 +61,12 @@ public class EstadoConversa {
                             estado = Estado.AGUARDANDO_ACAO_PIX;
                             return "Bot: Você deseja receber ou enviar um pix ?";
                         case CARTAO:
+                            estado = Estado.AGUARDANDO_ACAO_CARTAO;
+                            return "Bot: O número do seu cartão é: " + fkConta.getCartao().getNumero() +
+                                    "\nBot: O limite do seu cartão é: R$" + fkConta.getCartao().getLimite() +
+                                    "\nBot: A fatura do seu cartão é: R$" + fkConta.getCartao().getFatura() +
+                                    "\nBot: O seu cartão vence no dia " + fkConta.getCartao().getDiaVencimento() +
+                                    "\nBot: Deseja fazer um pagamento com o cartao?";
                         case EMPRESTIMO:
                             estado = Estado.AGUARDANDO_ACAO_EMPRESTIMO;
                             return String
@@ -132,6 +145,28 @@ public class EstadoConversa {
                         }
 
                     case CARTAO:
+                        if (operacaoCARTAO == OperacaoCARTAO.CREDITO) {
+                            try {
+                                valor = Double.parseDouble(mensagem);
+                                fkConta.getCartao().setFatura(fkConta.getCartao().getFatura() + valor);
+                                estado = Estado.NORMAL;
+                                return "Bot: Pagamento realizado com sucesso! Novo valor da fatura: R$"
+                                        + fkConta.getCartao().getFatura();
+                            } catch (NumberFormatException e) {
+                                estado = Estado.AGUARDANDO_VALOR;
+                                return "Bot: Por favor, informe um valor válido.";
+                            }
+                        } else if (operacaoCARTAO == OperacaoCARTAO.DEBITO) {
+                            try {
+                                valor = Double.parseDouble(mensagem);
+                                fkConta.setSaldo(fkConta.getSaldo() - valor);
+                                estado = Estado.NORMAL;
+                                return "Bot: Pagamento realizado com sucesso! Novo saldo: R$" + fkConta.getSaldo();
+                            } catch (NumberFormatException e) {
+                                estado = Estado.AGUARDANDO_VALOR;
+                                return "Bot: Por favor, informe um valor válido.";
+                            }
+                        }
                     case EMPRESTIMO:
                         try {
                             valor = Double.parseDouble(mensagem);
@@ -170,6 +205,22 @@ public class EstadoConversa {
                     estado = Estado.AGUARDANDO_VALOR;
                     operacaoPIX = OperacaoPIX.ENVIAR;
                     return "Bot: Informe o valor que vais enviar.";
+                }
+                estado = Estado.NORMAL;
+                return "Bot: Tudo bem, operação cancelada.";
+            case AGUARDANDO_ACAO_CARTAO:
+                if (mensagem.equals("sim")) {
+                    estado = Estado.AGUARDANDO_ACAO_CARTAO;
+                    return "Deseja pagar no crédito ou no débito?";
+                }
+                if (mensagem.contains("credito") || mensagem.contains("crédito")) {
+                    estado = Estado.AGUARDANDO_VALOR;
+                    operacaoCARTAO = OperacaoCARTAO.CREDITO;
+                    return "Bot: Informe o valor que vais pagar.";
+                } else if (mensagem.contains("debito") || mensagem.contains("débito")) {
+                    estado = Estado.AGUARDANDO_VALOR;
+                    operacaoCARTAO = OperacaoCARTAO.DEBITO;
+                    return "Bot: Informe o valor que vais pagar.";
                 }
                 estado = Estado.NORMAL;
                 return "Bot: Tudo bem, operação cancelada.";

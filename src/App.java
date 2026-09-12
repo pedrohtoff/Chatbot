@@ -110,8 +110,7 @@ public class App {
                     System.out.println("Bot: O número do seu cartão é: " + fkConta.getCartao().getNumero());
                     System.out.println("Bot: O limite do seu cartão é: R$" + fkConta.getCartao().getLimite());
                     System.out.println("Bot: A fatura do seu cartão é: R$" + fkConta.getCartao().getFatura());
-                    System.out.println(
-                            "Bot: O seu cartão vence no dia " + fkConta.getCartao().getDiaVencimento());
+                    System.out.println("Bot: O seu cartão vence no dia " + fkConta.getCartao().getDiaVencimento());
                     System.out.println("Bot: Deseja fazer mais algumas coisa ?");
                     mensagem = scan.nextLine().trim().toLowerCase();
                     if (mensagem.contains("pagamento")) {
