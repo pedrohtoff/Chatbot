@@ -1,8 +1,8 @@
 package domain;
 
-import domain.Conta;
-
 public class EstadoConversa {
+    private Estado estado = EstadoConversa.Estado.NORMAL;
+    private AcaoPendente acao;
 
     enum AcaoPendente {
         SALDO,
@@ -12,20 +12,23 @@ public class EstadoConversa {
     enum Estado {
         NORMAL,
         AGUARDANDO_CPF,
+        AGUARDANDO_ACAO_FATURA,
         AGUARDANDO_VALOR
     }
 
-    public String tratarEstados(Estado estadoAtual, AcaoPendente acao, String mensagem, Conta fkConta) {
-        switch (estadoAtual) {
+    public String tratarEstados(String mensagem, Conta fkConta) {
+        switch (estado) {
             case NORMAL:
                 return "Bot: Desculpe, não entendi. Pode reformular a pergunta?";
             case AGUARDANDO_CPF:
                 if (validarCPF(mensagem)) {
                     switch (acao) {
                         case SALDO:
-                            return "Bot: Pronto! O seu saldo é de R$" + fkConta.getSaldo();
+                            return String.format("Bot: Pronto! O seu saldo é de R$ %.2f", fkConta.getSaldo());
                         case FATURA:
-                            return "Bot: Pronto! Sua fatura é de R$" + fkConta.getCartao().getFatura();
+                            estado = Estado.AGUARDANDO_ACAO_FATURA;
+                            return String.format("Bot: Pronto! Sua fatura é de R$ %.2f",
+                                    fkConta.getCartao().getFatura());
                         default:
                             return "Não entendi o quando você disse. Pode reformular a pergunta?";
                     }
@@ -34,9 +37,28 @@ public class EstadoConversa {
                 }
             case AGUARDANDO_VALOR:
                 return "Bot: Por favor, informe o valor desejado.";
+            case AGUARDANDO_ACAO_FATURA:
+                if (mensagem.contains("pagar")) {
+                    estado = Estado.AGUARDANDO_VALOR;
+                    return "Informe o valor que deseja pagar: ";
+                }
+                estado = Estado.NORMAL;
+                return "Bot: Tudo bem, operação cancelada.";
             default:
                 return "Bot: Desculpe, ocorreu um erro inesperado.";
         }
+    }
+
+    public boolean estadoPendente() {
+        if (estado != Estado.NORMAL) {
+            return true;
+        }
+        return false;
+    }
+
+    public void iniciarAcao(AcaoPendente acao) {
+        this.acao = acao;
+        this.estado = Estado.AGUARDANDO_CPF;
     }
 
     public boolean validarCPF(String cpf) {
