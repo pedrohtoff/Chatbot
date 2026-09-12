@@ -31,12 +31,21 @@ public class EstadoConversa {
                         case SALDO:
                             estado = Estado.NORMAL;
                             return String.format(
-                                    "Bot: Pronto! O seu saldo é de R$ %.2f, Deseja fazer mais algumas coisa?",
+                                    "Bot: Pronto! O seu saldo é de R$ %.2f, Deseja fazer mais alguma coisa?",
                                     fkConta.getSaldo());
                         case FATURA:
                             estado = Estado.AGUARDANDO_ACAO_FATURA;
                             return String.format("Bot: Pronto! Sua fatura é de R$ %.2f, Deseja pagar ou sair?",
                                     fkConta.getCartao().getFatura());
+                        case LIMITE:
+                            estado = Estado.NORMAL;
+                            return String
+                                    .format("Bot: Pronto! O seu limite é de R$ %.2f, Deseja fazer mais alguma coisa?",
+                                            fkConta.getCartao().getLimite());
+                        case PIX:
+                        case CARTAO:
+                        case EMPRESTIMO:
+
                         default:
                             estado = Estado.NORMAL;
                             return "Não entendi o quando você disse. Pode reformular a pergunta?";
