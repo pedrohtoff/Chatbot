@@ -41,11 +41,44 @@ public class EstadoConversa {
                     return "Bot: CPF não encontrado. Por favor, tente novamente.";
                 }
             case AGUARDANDO_VALOR:
-                return "Bot: Por favor, informe o valor desejado.";
+                double valor, aux;
+                try {
+                    valor = Double.parseDouble(mensagem);
+                    if (valor <= 0) {
+                        return "Bot: Informe um valor maior que zero.";
+                    }
+
+                    if (valor <= fkConta.getSaldo()) {
+                        fkConta.setSaldo(fkConta.getSaldo() - valor);
+
+                        if (valor < fkConta.getCartao().getFatura()) {
+                            fkConta.getCartao().setFatura(fkConta.getCartao().getFatura() - valor);
+                            estado = Estado.NORMAL;
+                            return "Bot: Sua fatura foi paga com sucesso! Novo saldo: R$" + fkConta.getSaldo()
+                                    + " e fatura restante: R$" + fkConta.getCartao().getFatura();
+                        } else if (valor == fkConta.getCartao().getFatura()) {
+                            fkConta.getCartao().setFatura(0);
+                            estado = Estado.NORMAL;
+                            return "Bot: Sua fatura foi paga com sucesso! Novo saldo: R$" + fkConta.getSaldo();
+                        } else {
+                            aux = Math.abs(fkConta.getCartao().getFatura() - valor);
+                            fkConta.getCartao().setFatura(0);
+                            fkConta.setSaldo(fkConta.getSaldo() + aux);
+                            estado = Estado.NORMAL;
+                            return "Bot: O valor inserido é maior que a fatura. Pagando o valor da fatura e devolvendo o restante.";
+                        }
+                    } else {
+                        estado = Estado.AGUARDANDO_VALOR;
+                        return "Bot: Saldo insuficiente para realizar o pagamento! Saia ou tente novamente.";
+                    }
+                } catch (NumberFormatException e) {
+                    estado = Estado.AGUARDANDO_VALOR;
+                    return "Bot: Por favor, informe um valor válido.";
+                }
             case AGUARDANDO_ACAO_FATURA:
                 if (mensagem.contains("pagar")) {
                     estado = Estado.AGUARDANDO_VALOR;
-                    return "Informe o valor que deseja pagar: ";
+                    return "Informe o valor que deseja pagar.";
                 }
                 estado = Estado.NORMAL;
                 return "Bot: Tudo bem, operação cancelada.";
