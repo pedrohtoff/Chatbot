@@ -26,6 +26,8 @@ public class ChatBot {
             return estadoConversa.iniciarAcao(AcaoPendente.CARTAO);
         } else if (intencoes.isEmprestimo()) {
             return estadoConversa.iniciarAcao(AcaoPendente.EMPRESTIMO);
+        } else if (intencoes.isPagamento()) {
+            return estadoConversa.iniciarAcao(AcaoPendente.PAGAMENTO);
         } else if (intencoes.isAgencia()) {
             return "Bot: Claro! A agência mais próxima de você é a Agência Central, localizada na Rua Principal, nº 123. O horário de funcionamento é de segunda a sexta-feira, das 9h às 17h, Deseja mais alguma coisa?";
         } else if (intencoes.isAtendente()) {

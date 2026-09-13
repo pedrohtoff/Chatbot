@@ -13,11 +13,13 @@ public class EstadoConversa {
         PIX,
         CARTAO,
         EMPRESTIMO,
+        PAGAMENTO
     }
 
     enum Estado {
         NORMAL,
         AGUARDANDO_CPF,
+        AGUARDANDO_PAGAMENTO,
         AGUARDANDO_ACAO_FATURA,
         AGUARDANDO_ACAO_PIX,
         AGUARDANDO_ACAO_EMPRESTIMO,
@@ -67,6 +69,9 @@ public class EstadoConversa {
                                     "\nA fatura do seu cartão é: R$" + fkConta.getCartao().getFatura() +
                                     "\nO seu cartão vence no dia " + fkConta.getCartao().getDiaVencimento() +
                                     "\nDeseja fazer um pagamento com o cartao?";
+                        case PAGAMENTO:
+                            estado = Estado.AGUARDANDO_PAGAMENTO;
+                            return "Deseja realizar esse pagamento utilizando cartão ou pix?";
                         case EMPRESTIMO:
                             estado = Estado.AGUARDANDO_ACAO_EMPRESTIMO;
                             return String
@@ -77,7 +82,19 @@ public class EstadoConversa {
                             return "Não entendi o quando você disse. Pode reformular a pergunta?";
                     }
                 } else {
+                    estado = Estado.AGUARDANDO_CPF;
                     return "CPF não encontrado. Por favor, tente novamente.";
+                }
+            case AGUARDANDO_PAGAMENTO:
+                if (mensagem.contains("cartao") || mensagem.contains("cartão")) {
+                    estado = Estado.AGUARDANDO_ACAO_CARTAO;
+                    acao = AcaoPendente.CARTAO;
+                    return "Deseja pagar no crédito ou débito?";
+                } else if (mensagem.contains("pix")) {
+                    estado = Estado.AGUARDANDO_VALOR;
+                    operacaoPIX = OperacaoPIX.ENVIAR;
+                    acao = AcaoPendente.PIX;
+                    return "Informe o valor que vais enviar.";
                 }
             case AGUARDANDO_VALOR:
                 double valor, aux;
@@ -96,11 +113,13 @@ public class EstadoConversa {
                                     fkConta.getCartao().setFatura(fkConta.getCartao().getFatura() - valor);
                                     estado = Estado.NORMAL;
                                     return "Sua fatura foi paga com sucesso! Novo saldo: R$" + fkConta.getSaldo()
-                                            + " e fatura restante: R$" + fkConta.getCartao().getFatura();
+                                            + " e fatura restante: R$" + fkConta.getCartao().getFatura()
+                                            + ", Deseja fazer mais alguma coisa?";
                                 } else if (valor == fkConta.getCartao().getFatura()) {
                                     fkConta.getCartao().setFatura(0);
                                     estado = Estado.NORMAL;
-                                    return "Sua fatura foi paga com sucesso! Novo saldo: R$" + fkConta.getSaldo();
+                                    return "Sua fatura foi paga com sucesso! Novo saldo: R$" + fkConta.getSaldo()
+                                            + ", Deseja fazer mais alguma coisa?";
                                 } else {
                                     aux = Math.abs(fkConta.getCartao().getFatura() - valor);
                                     fkConta.getCartao().setFatura(0);
@@ -123,10 +142,11 @@ public class EstadoConversa {
                                 if (valor <= fkConta.getSaldo()) {
                                     fkConta.setSaldo(fkConta.getSaldo() - valor);
                                     estado = Estado.NORMAL;
-                                    return "Pix enviado com sucesso! Novo saldo: R$" + fkConta.getSaldo();
+                                    return "Pix enviado com sucesso! Novo saldo: R$" + fkConta.getSaldo()
+                                            + ", Deseja fazer mais alguma coisa?";
                                 } else {
                                     estado = Estado.AGUARDANDO_VALOR;
-                                    return "Saldo insuficiente para enviar o pix! Saia ou tente novamente.";
+                                    return "Saldo insuficiente para enviar o pix! Tente novamente.";
                                 }
                             } catch (NumberFormatException e) {
                                 estado = Estado.AGUARDANDO_VALOR;
@@ -137,7 +157,8 @@ public class EstadoConversa {
                                 valor = Double.parseDouble(mensagem);
                                 fkConta.setSaldo(fkConta.getSaldo() + valor);
                                 estado = Estado.NORMAL;
-                                return "Pix recebido com sucesso! Novo saldo: R$" + fkConta.getSaldo();
+                                return "Pix recebido com sucesso! Novo saldo: R$" + fkConta.getSaldo()
+                                        + ", Deseja fazer mais alguma coisa?";
                             } catch (NumberFormatException e) {
                                 estado = Estado.AGUARDANDO_VALOR;
                                 return "Por favor, informe um valor válido.";
@@ -152,9 +173,10 @@ public class EstadoConversa {
                                     fkConta.getCartao().setFatura(fkConta.getCartao().getFatura() + valor);
                                     estado = Estado.NORMAL;
                                     return "Pagamento realizado com sucesso! Novo valor da fatura: R$"
-                                            + fkConta.getCartao().getFatura();
+                                            + fkConta.getCartao().getFatura() + ", Deseja fazer mais alguma coisa?";
                                 } else {
-                                    return "Compra negada! Valor excede limite disponível.";
+                                    estado = Estado.NORMAL;
+                                    return "Compra negada! Valor excede limite disponível....";
                                 }
 
                             } catch (NumberFormatException e) {
@@ -166,7 +188,8 @@ public class EstadoConversa {
                                 valor = Double.parseDouble(mensagem);
                                 fkConta.setSaldo(fkConta.getSaldo() - valor);
                                 estado = Estado.NORMAL;
-                                return "Pagamento realizado com sucesso! Novo saldo: R$" + fkConta.getSaldo();
+                                return "Pagamento realizado com sucesso! Novo saldo: R$" + fkConta.getSaldo()
+                                        + ", Deseja fazer mais alguma coisa?";
                             } catch (NumberFormatException e) {
                                 estado = Estado.AGUARDANDO_VALOR;
                                 return "Por favor, informe um valor válido.";
@@ -179,7 +202,7 @@ public class EstadoConversa {
                             fkConta.setEmprestimo(0);
                             estado = Estado.NORMAL;
                             return "Emprestimo resgatado com sucesso! Novo saldo: R$"
-                                    + fkConta.getSaldo();
+                                    + fkConta.getSaldo() + ", Deseja fazer mais alguma coisa?";
                         } catch (NumberFormatException e) {
                             estado = Estado.AGUARDANDO_VALOR;
                             return "Por favor, informe um valor válido.";

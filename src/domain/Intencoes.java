@@ -3,7 +3,6 @@ package domain;
 public class Intencoes {
     private boolean saudacao;
     private boolean saldo;
-    // private boolean extrato;
     private boolean fatura;
     private boolean limite;
     private boolean pix;
@@ -16,8 +15,7 @@ public class Intencoes {
 
     public Intencoes(String mensagem) {
         this.saudacao = mensagem.contains("oi") || mensagem.contains("olá");
-        this.saldo = mensagem.contains("saldo");
-        // this.extrato = mensagem.contains("extrato");
+        this.saldo = mensagem.contains("saldo") || mensagem.contains("conta");
         this.fatura = mensagem.contains("fatura");
         this.limite = mensagem.contains("limite");
         this.pix = mensagem.contains("pix");
@@ -26,7 +24,7 @@ public class Intencoes {
         this.atendente = mensagem.contains("atendente") || mensagem.contains("pessoa");
         this.pagamento = mensagem.contains("pagar") || mensagem.contains("pagamento");
         this.cartao = mensagem.contains("cartão") || mensagem.contains("cartao");
-        this.encerrar = mensagem.contains("tchau");
+        this.encerrar = mensagem.contains("tchau") || mensagem.contains("sair");
     }
 
     public boolean isEncerrar() {
